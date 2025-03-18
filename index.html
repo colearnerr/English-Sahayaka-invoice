@@ -3,125 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>English Sahayaka Invoice Generator</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: auto; border: 1px solid #ddd; }
-        .header { text-align: right; }
-        .header h1 { font-size: 24px; margin: 0; }
-        .company-details { text-align: left; margin-bottom: 40px; }
-        .company-details p { margin: 4px 0; }
-        .logo { max-width: 150px; height: auto; margin-bottom: 20px; display: block; }
-        .invoice-details { width: 100%; margin-bottom: 20px; }
-        .invoice-details th, .invoice-details td { text-align: left; padding: 8px; }
-        .invoice-details th { background-color: #f4f4f4; }
-        .client-details, .bill-to { margin-bottom: 20px; }
-        .bill-to h2 { font-size: 18px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f4f4f4; }
-        .total-section { text-align: right; margin-top: 20px; }
-        .balance-due { font-size: 20px; font-weight: bold; }
-        .btn { padding: 10px 15px; cursor: pointer; margin: 5px; background-color: #4CAF50; color: white; border: none; }
-        .remove-btn { background-color: #f44336; }
-        .input-group { display: flex; flex-direction: column; gap: 10px; }
-        input { width: 100%; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        .invoice-container {
+            width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        header img {
+            max-height: 100px;
+        }
+        .company-details {
+            font-size: 14px;
+        }
+        .company-details h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .totals {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 20px;
+        }
     </style>
 </head>
-<body id="invoice">
-    <div class="header">
-        <h1>INVOICE</h1>
-        <p id="invoice-number">INV0003</p>
-    </div>
+<body>
+    <div class="invoice-container">
+        <!-- Header with logo and company details -->
+        <header>
+            <div class="company-details">
+                <h1>English Sahayaka</h1>
+                <p>3rd Floor, 1537, 5th Cross Road, Rajiv Gandhi Nagar</p>
+                <p>Agara Village, 1st Sector, HSR Layout, Bengaluru</p>
+                <p>Phone: 8296944098 | Email: englishsahayaka@gmail.com</p>
+            </div>
+            <img src="logo.png" alt="Company Logo">
+        </header>
 
-    <div class="company-details">
-        <img src="logo.png" alt="Company Logo" class="logo">
-        <p><strong>English Sahayaka</strong></p>
-        <p>3rd floor, 1537, 5th Cross Road, Rajiv Gandhi Nagar, Agara Village, 1st Sector, HSR Layout, Bengaluru</p>
-        <p>Email: englishsahayaka@gmail.com</p>
-        <p>Phone: 8050177159</p>
-    </div>
-
-    <div class="bill-to">
-        <h2>Bill To</h2>
-        <div class="input-group">
-            <label for="client-name">Client Name:</label>
-            <input type="text" id="client-name" value="" placeholder="Enter client name">
-
-            <label for="client-phone">Client Phone:</label>
-            <input type="tel" id="client-phone" value="" placeholder="Enter client phone">
-
-            <label for="client-email">Client Email:</label>
-            <input type="email" id="client-email" value="" placeholder="Enter client email">
+        <!-- Billing information -->
+        <div>
+            <h3>Bill To</h3>
+            <input type="text" placeholder="Client Name">
+            <input type="text" placeholder="Client Phone">
+            <input type="text" placeholder="Client Email">
+            <h3>Invoice Details</h3>
+            <label>Date: <input type="date"></label>
+            <label>Invoice #: <input type="text" placeholder="Invoice Number"></label>
         </div>
+
+        <!-- Table for items -->
+        <table id="invoice-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Rate</th>
+                    <th>Qty</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" placeholder="Description"></td>
+                    <td><input type="number" class="rate" placeholder="Rate"></td>
+                    <td><input type="number" class="qty" placeholder="Qty"></td>
+                    <td class="amount">₹0</td>
+                </tr>
+            </tbody>
+        </table>
+        <button id="add-row">Add Row</button>
+        <div class="totals">
+            Total: ₹<span id="total-amount">0</span>
+        </div>
+
+        <!-- Export button -->
+        <button id="export-pdf">Export as PDF</button>
     </div>
-
-    <table class="invoice-details">
-        <tr>
-            <th>Date</th>
-            <td><input type="date" id="invoice-date"></td>
-        </tr>
-        <tr>
-            <th>Due Date</th>
-            <td><input type="text" id="due-date" placeholder="Enter due date"></td>
-        </tr>
-    </table>
-
-    <table id="invoice-table">
-        <thead>
-            <tr>
-                <th>Description</th>
-                <th>Rate (INR ₹)</th>
-                <th>Qty</th>
-                <th>Discount (INR ₹)</th>
-                <th>Amount (INR ₹)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><input type="text" value=""></td>
-                <td><input type="number" value="" oninput="calculateTotal()"></td>
-                <td><input type="number" value="" oninput="calculateTotal()"></td>
-                <td><input type="number" value="" oninput="calculateTotal()"></td>
-                <td><input type="number" value="" readonly></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="total-section">
-        <p class="balance-due">Balance Due: INR ₹<span id="balance-due">0.00</span></p>
-    </div>
-
-    <button class="btn" onclick="generateNewInvoice()">Generate New Invoice</button>
-    <button class="btn" onclick="downloadPDF()">Download PDF</button>
 
     <script>
-        let invoiceNumber = 3;
+        // Add a new row to the table
+        document.getElementById('add-row').addEventListener('click', function() {
+            const table = document.getElementById('invoice-table').querySelector('tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Description"></td>
+                <td><input type="number" class="rate" placeholder="Rate"></td>
+                <td><input type="number" class="qty" placeholder="Qty"></td>
+                <td class="amount">₹0</td>
+            `;
+            table.appendChild(newRow);
+            addEventListeners(); // Ensure event listeners are added to new inputs
+        });
 
-        function generateNewInvoice() {
-            invoiceNumber++;
-            document.getElementById('invoice-number').textContent = 'INV' + String(invoiceNumber).padStart(4, '0');
-            calculateTotal();
-        }
-
-        function calculateTotal() {
-            const rows = document.querySelectorAll('#invoice-table tbody tr');
+        // Calculate totals
+        function calculateTotals() {
             let total = 0;
+            const rows = document.querySelectorAll('#invoice-table tbody tr');
             rows.forEach(row => {
-                const rate = parseFloat(row.cells[1].querySelector('input').value) || 0;
-                const qty = parseFloat(row.cells[2].querySelector('input').value) || 0;
-                const discount = parseFloat(row.cells[3].querySelector('input').value) || 0;
-                const amount = (rate * qty) - discount;
-                row.cells[4].querySelector('input').value = amount.toFixed(2);
+                const rate = parseFloat(row.querySelector('.rate').value) || 0;
+                const qty = parseFloat(row.querySelector('.qty').value) || 0;
+                const amount = rate * qty;
+                row.querySelector('.amount').textContent = `₹${amount}`;
                 total += amount;
             });
-            document.getElementById('balance-due').textContent = total.toFixed(2);
+            document.getElementById('total-amount').textContent = total;
         }
 
-        function downloadPDF() {
-            const element = document.getElementById('invoice');
-            html2pdf().from(element).save('Invoice_' + document.getElementById('invoice-number').textContent + '.pdf');
+        // Add event listeners to inputs
+        function addEventListeners() {
+            const inputs = document.querySelectorAll('.rate, .qty');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
         }
+        addEventListeners();
+
+        // Export the invoice as a PDF
+        document.getElementById('export-pdf').addEventListener('click', function() {
+            const doc = new jsPDF();
+            const img = new Image();
+            img.src = 'logo.png'; // Path to your company logo
+
+            img.onload = function() {
+                doc.addImage(img, 'PNG', 10, 10, 50, 20); // Add logo
+                doc.text("English Sahayaka Invoice", 70, 20);
+
+                // Add company details
+                doc.text("3rd Floor, 1537, 5th Cross Road, Rajiv Gandhi Nagar", 10, 40);
+                doc.text("Agara Village, 1st Sector, HSR Layout, Bengaluru", 10, 50);
+                doc.text("Phone: 8296944098 | Email: englishsahayaka@gmail.com", 10, 60);
+
+                // Add table data
+                const rows = document.querySelectorAll('#invoice-table tbody tr');
+                rows.forEach((row, index) => {
+                    const cols = row.querySelectorAll('td');
+                    const description = cols[0].querySelector('input').value || '';
+                    const rate = cols[1].querySelector('input').value || 0;
+                    const qty = cols[2].querySelector('input').value || 0;
+                    const amount = cols[3].textContent || 0;
+                    doc.text(`${description}, Rate: ${rate}, Qty: ${qty}, Amount: ${amount}`, 10, 80 + (index * 10));
+                });
+
+                // Save PDF
+                doc.save('invoice.pdf');
+            };
+        });
     </script>
 </body>
 </html>
+
