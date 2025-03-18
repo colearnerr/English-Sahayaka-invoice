@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        header img {
+            max-height: 120px;
+        }
+        .company-details {
+            text-align: left;
+        }
+        .company-details h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .company-details p {
+            margin: 2px 0;
+            color: #555;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+        .totals {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header Section -->
+        <header>
+            <div class="company-details">
+                <h1>English Sahayaka</h1>
+                <p>3rd Floor, 1537, 5th Cross Road, Rajiv Gandhi Nagar</p>
+                <p>Agara Village, 1st Sector, HSR Layout, Bengaluru</p>
+                <p>Phone: 8296944098 | Email: englishsahayaka@gmail.com</p>
+            </div>
+            <img src="logo.png" alt="Company Logo">
+        </header>
+
+        <!-- Editable Invoice and Billing Details -->
+        <div class="section">
+            <h2 class="section-title">Bill To:</h2>
+            <input type="text" placeholder="Client Name"><br>
+            <input type="text" placeholder="Client Phone"><br>
+            <input type="text" placeholder="Client Email"><br>
+        </div>
+        <div class="section">
+            <h2 class="section-title">Invoice Details:</h2>
+            <label>Date: <input type="date"></label><br>
+            <label>Invoice #: <span id="invoice-number">INV0001</span></label>
+        </div>
+
+        <!-- Table for Items -->
+        <table id="invoice-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Rate</th>
+                    <th>Qty</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" placeholder="Description"></td>
+                    <td><input type="number" class="rate" placeholder="Rate"></td>
+                    <td><input type="number" class="qty" placeholder="Qty"></td>
+                    <td class="amount">₹0</td>
+                </tr>
+            </tbody>
+        </table>
+        <button id="add-row">Add Row</button>
+
+        <!-- Totals -->
+        <div class="totals">
+            Total: ₹<span id="total-amount">0</span>
+        </div>
+
+        <!-- Export to PDF -->
+        <button id="export-pdf">Export as PDF</button>
+
+        <footer>
+            Thank you for your business! If you have any questions about this invoice, please contact us at englishsahayaka@gmail.com.
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        let invoiceCounter = 1; // Start invoice number counter
+
+        // Add Row Functionality
+        document.getElementById('add-row').addEventListener('click', function() {
+            const table = document.querySelector('#invoice-table tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Description"></td>
+                <td><input type="number" class="rate" placeholder="Rate"></td>
+                <td><input type="number" class="qty" placeholder="Qty"></td>
+                <td class="amount">₹0</td>
+            `;
+            table.appendChild(newRow);
+            addEventListeners();
+        });
+
+        // Calculate Totals
+        function calculateTotals() {
+            let total = 0;
+            const rows = document.querySelectorAll('#invoice-table tbody tr');
+            rows.forEach(row => {
+                const rate = parseFloat(row.querySelector('.rate').value) || 0;
+                const qty = parseFloat(row.querySelector('.qty').value) || 0;
+                const amount = rate * qty;
+                row.querySelector('.amount').textContent = `₹${amount}`;
+                total += amount;
+            });
+            document.getElementById('total-amount').textContent = total;
+        }
+
+        // Add Event Listeners to Inputs
+        function addEventListeners() {
+            const inputs = document.querySelectorAll('.rate, .qty');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+        }
+        addEventListeners();
+
+        // Generate PDF
+        document.getElementById('export-pdf').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add Company Logo
+            const logo = new Image();
+            logo.src = 'logo.png';
+            logo.onload = function() {
+                doc.addImage(logo, 'PNG', 10, 10, 50, 20);
+
+                // Add Company Details
+                doc.setFontSize(12);
+                doc.text("English Sahayaka", 70, 20);
+                doc.text("3rd Floor, 1537, 5th Cross Road, Rajiv Gandhi Nagar", 70, 30);
+                doc.text("Agara Village, 1st Sector, HSR Layout, Bengaluru", 70, 40);
+                doc.text("Phone: 8296944098 | Email: englishsahayaka@gmail.com", 70, 50);
+
+                // Add Invoice Title
+                doc.setFontSize(16);
+                doc.text("INVOICE", 105, 70, { align: 'center' });
+
+                // Add Billing Details
+                const clientName = document.querySelector('input[placeholder="Client Name"]').value || 'Client Name';
+                const clientPhone = document.querySelector('input[placeholder="Client Phone"]').value || 'Client Phone';
+                const clientEmail = document.querySelector('input[placeholder="Client Email"]').value || 'Client Email';
+                const invoiceDate = document.querySelector('input[type="date"]').value || 'Date';
+
+                const invoiceNumber = `INV${String(invoiceCounter++).padStart(4, '0')}`;
+                document.getElementById('invoice-number').textContent = invoiceNumber; // Update invoice number in UI
+
+                doc.text(`Bill To: ${clientName}`, 10, 90);
+                doc.text(`Phone: ${clientPhone}`, 10, 100);
+                doc.text(`Email: ${clientEmail}`, 10, 110);
+                doc.text(`Date: ${invoiceDate}`, 10, 120);
+                doc.text(`Invoice #: ${invoiceNumber}`, 10, 130);
+
+                // Add Table Headers
+                doc.text("Description", 10, 150);
+                doc.text("Rate", 80, 150);
+                doc.text("Qty", 120, 150);
+                doc.text("Amount", 160, 150);
+
+                // Add Table Rows
+                let tableStartY = 160;
+                const rows = document.querySelectorAll('#invoice-table tbody tr');
+                rows.forEach((row, index) => {
+                    const description = row.querySelector('td:nth-child(1) input').value || '';
+                    const rate = row.querySelector('td:nth-child(2) input').value || '0';
+                    const qty = row.querySelector('td:nth-child(3) input').value || '0';
+                    const amount = row
